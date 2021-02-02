@@ -38,8 +38,12 @@ const sequelize = new Sequelize(dbName, user, password, {
           exclude:['created_at','deleted_at','updated_at','deletedAt']
         }
       }
-    }
-  }
+    },
+  },
+  query: {
+    // 查询将只返回dataValues
+    raw: true,
+  },
 })
 // 同步Model到数据库
 sequelize.sync({

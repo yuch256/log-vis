@@ -1,0 +1,42 @@
+.fbh, .fbv
+  display flex
+.fbv
+  flex-direction column
+.fbas
+  align-items flex-start
+.fbac
+  align-items center
+.fbae
+  align-items flex-end
+.fbast
+  align-items stretch
+.fbabl
+  align-items baseline
+.fbjs
+  justify-content flex-start
+.fbjc
+  justify-content center
+.fbje
+  justify-content flex-end
+.fbjsb
+  justify-content space-between
+.fbjsa
+  justify-content space-around
+.fbw
+  flex-wrap wrap
+.fbnw
+  flex-wrap nowrap
+.as-s
+  align-self flex-start
+.as-e
+  align-self flex-end
+.as-c
+  align-self center
+.as-bl
+  align-self baseline
+.as-st
+  align-self stretch
+
+for $n in 1 2 3 4 5 6 7 8 9 10 11 12
+  .fb{$n}
+    flex $n

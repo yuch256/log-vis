@@ -8,6 +8,6 @@ app.use(exception)
 app.use(parser())
 InitManager.initCore(app)
 
-app.listen(8080, () => {
-  console.log('http监听端口8080')
+app.listen(8081, () => {
+  console.log('http监听端口8081')
 })

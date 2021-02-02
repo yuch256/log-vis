@@ -146,13 +146,14 @@ module.exports = {
         test: stylusModuleRegex,
         include: [path.resolve(__dirname, 'src')],
         use: [
-          isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
+          // isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
+          'style-loader',
           {
             loader: require.resolve('css-loader'),
             options: {
               importLoaders: 2,
               modules: {
-                localIdentName: '[name]-[local]-[hash:base64:5]',
+                localIdentName: isDev ? '[name]-[local]-[hash:base64:5]' : '[hash:base64]',
               },
             },
           },
@@ -168,7 +169,7 @@ module.exports = {
       //       loader: 'url-loader',
       //       query: {
       //         name: `${pkg.version}/[name].[hash:8].[ext]`,
-      //         limit: 1024 * 1024,
+      //         limit: 8192,
       //       },
       //     },
       //   ],

@@ -1,0 +1,197 @@
+@import './flexbox.styl'
+
+*
+  padding 0
+  margin 0
+  box-sizing border-box
+  overflow-anchor none
+  :focus
+    outline none
+
+body, input, textarea, select
+  overflow hidden
+  color white
+  font-size 12px
+  font-family 'PingFang SC','Helvetica Neue',Helvetica,STHeitiSC-Light,WOL_SB,'Segoe UI Semibold','Segoe UI',Tahoma,Helvetica,'Microsoft Yahei',sans-serif
+  font-weight 200
+body
+  // background-color #1b1b1b
+  height 100vh
+a
+  color #fff
+  text-decoration none
+
+svg
+  display block
+  // 滚动条整体样式
+::-webkit-scrollbar
+  // 高宽分别对应横竖滚动条的尺寸
+  width 3px
+  height 3px
+// 滚动条里面轨道
+::-webkit-scrollbar-track
+  border-radius 0
+  padding 2px
+  // box-shadow: inset 1px 1px 5px rgba(0,0,0,0.4)
+  // background-color rgba(255,255,255,0.04)
+// 滚动条里面小方块
+::-webkit-scrollbar-thumb
+  // border-left 4px solid #444
+  background-color: #444
+
+.scrollbar
+  overflow auto
+// 在有滚动条的元素上加上该classname，只有鼠标进入元素区域内，滚动条才会有颜色
+.scrollbar:hover::-webkit-scrollbar-thumb
+  // border-left 4px solid themeColor
+  background-color: themeColor
+
+::-webkit-scrollbar-thumb:window-inactive
+  // border-left 4px solid #444
+  background-color: #444
+
+.bold
+  font-weight 400
+.omit
+  overflow hidden
+  text-overflow ellipsis
+  word-break keep-all
+  white-space nowrap
+.omit2
+  overflow hidden
+  text-overflow ellipsis
+  display -webkit-box
+  -webkit-line-clamp 2
+  -webkit-box-orient vertical
+.omit3
+  overflow hidden
+  text-overflow ellipsis
+  display -webkit-box
+  -webkit-line-clamp 3
+  -webkit-box-orient vertical
+.miniTip
+  border-radius: 12px
+  width 24px
+  height 24px
+  line-height 24px
+  border 2px solid transparent
+  display block
+  background-color: rgba(255, 255, 255, 0.1)
+  text-align center
+
+.pr
+  position relative
+.pa
+  position absolute
+.pf
+  position fixed
+.hand
+  cursor pointer
+.hide
+  display none
+.block
+  display block
+.inlineBlock
+  display inline-block
+.oh
+  overflow hidden
+
+.h100v
+  height 100vh
+.h100p
+  height 100%
+.w100p
+  width 100%
+.wh100p
+  width 100%
+  height 100%
+.h40
+  height 40px
+.w0
+  width 0
+.w40
+  width 40px
+.h28
+  height 28px
+.h32
+  height 32px
+.w32
+  width 32px
+.lh40
+  line-height 40px
+.lh32
+  line-height 32px
+.lh28
+  line-height 28px
+
+u(n)
+  n == 0 ? n : unit(n, px)
+
+for $n in 0 12 14 16 18 20 22 24 26 28 30
+  .fs{$n}
+    font-size u($n)
+// all padding
+for $n in 0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30
+  .p{$n}
+    padding u($n)
+// special padding
+for $n in 0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30
+  .pt{$n}
+    padding-top u($n)
+  .pr{$n}
+    padding-right u($n)
+  .pb{$n}
+    padding-bottom u($n)
+  .pl{$n}
+    padding-left u($n)
+// all margin
+for $n in 0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30
+  .m{$n}
+    margin u($n)
+// special margin
+for $n in 0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30
+  .mt{$n}
+    margin-top u($n)
+  .mr{$n}
+    margin-right u($n)
+  .mb{$n}
+    margin-bottom u($n)
+  .ml{$n}
+    margin-left u($n)
+
+// 禁止选中
+.noselect, .noSelect
+  -webkit-touch-callout none
+  -webkit-user-select none
+  -khtml-user-select none
+  -moz-user-select none
+  -ms-user-select none
+  user-select none
+
+// 事件穿透
+.noevent, .noEvent
+  pointer-events none
+
+.noChartEvent
+  svg
+    pointer-events none
+  .noFieldEvent
+    pointer-events none
+
+.o2p
+  opacity 0.2
+.o4p
+  opacity 0.4
+.o0p
+  opacity 0
+
+.cursorGrab
+  cursor grab
+.cursorGrabing
+  cursor grabbing
+  .cursorGrab
+    cursor grabbing
+.cursorCross
+  cursor crosshair
+.cursorCell
+  cursor cell

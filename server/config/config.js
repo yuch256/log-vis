@@ -2,11 +2,11 @@ module.exports = {
 	env: 'dev',
 	// env: 'prod',
 	database: {
-		dbName: 'logs-vis',
-		host: 'localhost',
+		dbName: 'log-vis',
 		port: 3306,
 		user: 'root',
-		pwd: ''
+		host: 'localhost',
+		pwd: '',
 	},
 	security: {
 		secretKey: "abcdefg",        // 秘钥

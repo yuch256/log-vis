@@ -4,6 +4,7 @@ const eception = async (ctx, next) => {
   try {
     await next()
   } catch (error) {
+    console.log(error)
     const Isdev = global.config.environment === 'dev'
     const IsHttpexecption = error instanceof HttpExecption
     if (Isdev && !IsHttpexecption) {
