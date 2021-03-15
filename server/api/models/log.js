@@ -1,5 +1,6 @@
 const {sequelize} = require('../../core/db')
 const {Sequelize, Model, Op, fn, col, literal} = require('sequelize')
+const {distinct} = require('../../core/util')
 
 class Log extends Model {
   // 获取日志时间区间（默认日志已按时间排序，所以取第一条和最后一条日志的时间即可）
@@ -33,6 +34,62 @@ class Log extends Model {
     })
     // const list = await sequelize.query("select start_time, ifnull");
     return list
+  }
+
+  // 获取ip节点
+  static async getNodes() {
+    // const srcNodes = await Log.findAll({
+    //   attributes: [
+    //     ['srcip', 'id'],
+    //   ],
+    //   group: 'srcip',
+    //   // limit: 3,
+    // })
+    // const dstNodes = await Log.findAll({
+    //   attributes: [
+    //     ['dstip', 'id'],
+    //   ],
+    //   group: 'dstip',
+    //   // limit: 3,
+    // })
+    console.log(Sequelize.union)
+    const nodes = sequelize.union([{
+      model: Log,
+      attributes: [
+        ['dstip', 'id'],
+      ],
+      group: 'dstip',
+    }, {
+      model: Log,
+      attributes: [
+        ['srcip', 'id'],
+      ],
+      group: 'srcip',
+    }])
+    // return nodes.length
+    // return distinct(srcNodes, dstNodes)
+    // const nodes = distinct(srcNodes, dstNodes)
+    // return nodes.reduce((arr, n) => {
+    //   if (!/^0/.test(n.id)) arr.push(n)
+    //   return arr
+    // }, [])
+  }
+  static async getEdges() {
+    const edges = await Log.findAll({
+      attributes: [
+        // 'id',
+        ['srcip', 'source'],
+        ['dstip', 'target'],
+      ],
+      group: ['srcip', 'dstip'],
+      limit: 50000,
+    })
+    return edges.reduce((arr, e) => {
+      const {source, target} = e
+      const reg = /^0/
+      if (!reg.test(source) && !reg.test(target)) arr.push(e)
+      return arr
+    }, [])
   }
 }
 
@@ -92,6 +149,7 @@ Log.init({
   },
 }, {
   sequelize,
+  // tableName:'log-test',
   tableName:'log',
   timestamps: false,
 })

@@ -59,7 +59,21 @@ const generateToken = function(uid,scope){
 //   return token
 // }
 
+// 数组去重
+const distinct = (arr1, arr2) => {
+  const result = []
+  const obj = {}
+  arr1.concat(arr2).map(i => {
+    if (!obj[i.id]) {
+      result.push(i)
+      obj[i.id] = 1
+    }
+  })
+  return result
+}
+
 module.exports = {
   findMembers,
-  generateToken
+  generateToken,
+  distinct,
 }

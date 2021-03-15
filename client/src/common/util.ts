@@ -68,6 +68,9 @@ export function isObject(v: any) {
   return typeof v === 'object' && v !== null
 }
 
+// 判断是否开发环境
+export const isDev = process.env.NODE_ENV === 'dev'
+
 // 参考了zepto
 export function isPlainObject(v: any) {
   return v !== null && isObject(v) && !isWindow(v) && Object.getPrototypeOf(v) === Object.prototype

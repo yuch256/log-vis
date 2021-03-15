@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "/dist",
-    "module": "es6",
+    "module": "es2020",
     "target": "es2020",
     "sourceMap": true,
     "allowJs": true,
@@ -17,7 +17,14 @@
     "paths": {
       "@c*": ["./src/components/*"],
       "@p*": ["./src/pages/*"],
+      "@a*": ["./src/assets/*"],
+      "@diagram*": ["./src/diagram/*"],
+      "@common*": ["./src/common/*"],
+      "@axios*": ["./src/common/axios"],
     },
+    "skipLibCheck": true,
+    "importHelpers": true,
+    "suppressImplicitAnyIndexErrors": true,
   },
   "exclude": [
     "node_modules",

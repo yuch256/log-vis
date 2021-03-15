@@ -42,8 +42,23 @@ module.exports = {
       aggregateTimeout: 600,
     },
     proxy: {
-      '/api': 'http://localhost:8080',
+      '/v2': {
+        target: 'http://localhost:8081',
+        // pathRewrite: {
+        //   '^/api': '', // 替换掉代理地址中的 /api
+        // },
+        changeOrigin: true,
+      },
     },
+    // proxy: {
+    //   '/api': {
+    //     target: 'https://192.168.10.128:8443',
+    //     pathRewrite: {
+    //       '^/api': '',
+    //     },
+    //     changeOrigin: true,
+    //   },
+    // },
   },
   optimization: {
     minimizer: [
@@ -161,19 +176,59 @@ module.exports = {
           'stylus-loader',
         ],
       },
-      // {
-      //   test: /\.(jpg|jpeg|png|gif|svg|ico)$/,
-      //   exclude: [path.resolve(__dirname, './src/assets/icons')],
-      //   use: [
-      //     {
-      //       loader: 'url-loader',
-      //       query: {
-      //         name: `${pkg.version}/[name].[hash:8].[ext]`,
-      //         limit: 8192,
-      //       },
-      //     },
-      //   ],
-      // },
+      {
+        test: /\.(jpg|jpeg|png|gif|svg|ico)$/,
+        exclude: [path.resolve(__dirname, './src/assets/icons')],
+        // use: [{
+        //   loader: 'svg-inline-react',
+        //   options: {
+        //     jsx: true, // true outputs JSX tags
+        //     svgo: {
+        //       plugins: [
+        //         {removeTitle: false},
+        //       ],
+        //       floatPrecision: 2,
+        //     },
+        //   },
+        // }],
+        use: [
+          {
+            loader: 'url-loader',
+            query: {
+              name: `${pkg.version}/[name].[hash:8].[ext]`,
+              limit: 1024 * 1024,
+            },
+          },
+        ],
+      },
+      {
+        test: /^((?!\.color).)*((?!\.color).)\.svg$/,
+        include: [path.resolve(__dirname, './src/assets/icons')],
+        use: [
+          {loader: 'svg-sprite-loader'},
+          {
+            loader: 'svgo-loader',
+            options: {
+              plugins: [
+                {removeTitle: true},
+                {convertColors: {shorthex: true}},
+                {convertPathData: true},
+                {removeComments: true},
+                {removeDesc: true},
+                {removeUselessDefs: true},
+                {removeEmptyAttrs: true},
+                {removeHiddenElems: true},
+                {removeEmptyText: true},
+                {removeUselessStrokeAndFill: true},
+                {moveElemsAttrsToGroup: true},
+                {removeStyleElement: true},
+                {cleanupEnableBackground: true},
+                {removeAttrs: {attrs: '(stroke|fill|filter)'}},
+              ],
+            },
+          },
+        ],
+      },
     ],
   },
 }

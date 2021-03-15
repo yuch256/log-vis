@@ -1,5 +1,5 @@
 {
-  "extends": "airbnb",
+  "extends": ["airbnb", "react-hooks"],
   "parser": "@typescript-eslint/parser",
   "env": {
     "browser": true,
@@ -228,7 +228,8 @@
         "js": "never",
         "jsx": "never"
       }
-    ]
+    ],
+    "no-undef": 0
   },
   "settings": {
     "import/parsers": {

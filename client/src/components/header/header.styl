@@ -1,0 +1,99 @@
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #dadce0;
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,.05);
+  z-index: 999;
+}
+
+.app-title {
+  display: flex;
+  align-items: center;
+  margin: 0 20px;
+}
+
+.app-logo-box {
+  width: 36px;
+  display: flex;
+  margin-right: 6px;
+}
+
+.app-title span {
+  padding: 10px 0;
+  word-break: keep-all;
+  white-space: nowrap;
+  font-size: 1.3rem;
+  box-sizing: border-box;
+}
+
+.app-menu {
+  padding: 8px 32px 0 8px;
+  display: flex;
+  justify-content: space-between;
+  line-height: 48px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  -ms-overflow-style: none;
+}
+
+.app-menu::-webkit-scrollbar {
+  display: none;
+}
+
+.app-menu-item {
+  position: relative;
+  cursor: pointer;
+  word-break: break-all;
+  white-space: nowrap;
+}
+
+.app-menu-item a {
+  display: block;
+  padding: 0 20px;
+}
+
+.app-menu-item a::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 3px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  border-radius: 4px 4px 0 0;
+  opacity: 1;
+  transition: width .45s, opacity .1s;
+  background-color: #FF66CC;
+}
+
+.app-menu-item a:hover::before {
+  width: 100%;
+}
+
+.app-menu-active::before {
+  width: 100%!important;
+}
+
+@media screen and (max-width: 712px) {
+  .app-header {
+    flex-direction: column;
+  }
+  .app-logo {
+    height: 43px;
+  }
+  .app-logo span {
+    height: 100%;
+  }
+  .app-menu {
+    padding: 0 8px;
+  }
+  .app-menu-item a {
+    padding: 0 12px;
+  }
+}

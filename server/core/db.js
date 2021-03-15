@@ -14,7 +14,7 @@ const sequelize = new Sequelize(dbName, user, password, {
   host,
   port,
   // 是否在命令行打印出sql
-  logging: false,
+  logging: true,
   // 显示北京时间
   timezone: '+08:00',
   // 表名和属性大小写不敏感
