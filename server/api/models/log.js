@@ -38,37 +38,24 @@ class Log extends Model {
 
   // 获取ip节点
   static async getNodes() {
-    // const srcNodes = await Log.findAll({
-    //   attributes: [
-    //     ['srcip', 'id'],
-    //   ],
-    //   group: 'srcip',
-    //   // limit: 3,
-    // })
-    // const dstNodes = await Log.findAll({
-    //   attributes: [
-    //     ['dstip', 'id'],
-    //   ],
-    //   group: 'dstip',
-    //   // limit: 3,
-    // })
-    console.log(Sequelize.union)
-    const nodes = sequelize.union([{
-      model: Log,
-      attributes: [
-        ['dstip', 'id'],
-      ],
-      group: 'dstip',
-    }, {
-      model: Log,
+    const srcNodes = await Log.findAll({
       attributes: [
         ['srcip', 'id'],
       ],
       group: 'srcip',
-    }])
-    // return nodes.length
+      // limit: 3,
+    })
+    const dstNodes = await Log.findAll({
+      attributes: [
+        ['dstip', 'id'],
+      ],
+      group: 'dstip',
+      // limit: 3,
+    })
     // return distinct(srcNodes, dstNodes)
-    // const nodes = distinct(srcNodes, dstNodes)
+    const {nodes, obj} = distinct(srcNodes, dstNodes)
+    console.log(Object.keys(obj).length, 1)
+    return {nodes, obj}
     // return nodes.reduce((arr, n) => {
     //   if (!/^0/.test(n.id)) arr.push(n)
     //   return arr

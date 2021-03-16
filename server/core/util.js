@@ -69,7 +69,7 @@ const distinct = (arr1, arr2) => {
       obj[i.id] = 1
     }
   })
-  return result
+  return {nodes: result, obj}
 }
 
 module.exports = {

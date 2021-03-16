@@ -6,7 +6,12 @@ const router = new Router({
 })
 
 router.get('/nodes', async ctx => {
-  const nodes = await Log.getNodes()
+  const {nodes, obj} = await Log.getNodes()
+  const edges = await Log.getEdges()
+  console.log(object)
+  edges.forEach(e => {
+    if (!obj[e.target] && !obj[e.source])
+  })
   ctx.body = {
     success: true,
     data: nodes,
