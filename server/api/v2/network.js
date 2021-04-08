@@ -1,25 +1,28 @@
 const Router = require('koa-router')
 const {Log} = require('../models/log')
+const {Node} = require('../models/node')
 
 const router = new Router({
-  prefix:'/v2/network'
+  prefix:'/v2/network',
 })
 
 router.get('/nodes', async ctx => {
-  const {nodes, obj} = await Log.getNodes()
-  const edges = await Log.getEdges()
-  console.log(object)
-  edges.forEach(e => {
-    if (!obj[e.target] && !obj[e.source])
+  const nodes = await Log.getNodes()
+  const result = nodes.filter(n => {
+    n.degree = n.inDegree + n.outDegree
+    return n.degree >= 1000
   })
+
   ctx.body = {
     success: true,
-    data: nodes,
+    data: result,
   }
 })
 
 router.get('/edges', async ctx => {
   const edges = await Log.getEdges()
+  console.log('network edges', edges.length)
+
   ctx.body = {
     success: true,
     data: edges,

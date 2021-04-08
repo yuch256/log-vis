@@ -17,7 +17,6 @@
     "paths": {
       "@c*": ["./src/components/*"],
       "@p*": ["./src/pages/*"],
-      "@a*": ["./src/assets/*"],
       "@diagram*": ["./src/diagram/*"],
       "@common*": ["./src/common/*"],
       "@axios*": ["./src/common/axios"],

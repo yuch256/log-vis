@@ -1,6 +1,6 @@
 import React from 'react'
 import {NavLink, Link} from 'react-router-dom'
-import Logo from '@a/images/logo.png'
+import Logo from './logo.png'
 import './header.styl'
 
 const Header: React.FC = () => {
@@ -8,7 +8,7 @@ const Header: React.FC = () => {
     <header className="app-header">
       <Link to="/" className="app-title">
         <div className="app-logo-box">
-          <img src={Logo} alt="" className="wh100p" />
+          <img src={Logo} alt="logo" className="wh100p" />
         </div>
         <span>网络安全数据可视化系统</span>
       </Link>

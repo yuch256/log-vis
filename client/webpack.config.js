@@ -178,7 +178,7 @@ module.exports = {
       },
       {
         test: /\.(jpg|jpeg|png|gif|svg|ico)$/,
-        exclude: [path.resolve(__dirname, './src/assets/icons')],
+        exclude: [path.resolve(__dirname, './src/icons')],
         // use: [{
         //   loader: 'svg-inline-react',
         //   options: {
@@ -203,7 +203,7 @@ module.exports = {
       },
       {
         test: /^((?!\.color).)*((?!\.color).)\.svg$/,
-        include: [path.resolve(__dirname, './src/assets/icons')],
+        include: [path.resolve(__dirname, './src/icons')],
         use: [
           {loader: 'svg-sprite-loader'},
           {

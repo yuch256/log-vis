@@ -6,8 +6,9 @@ import Test from './pages/test'
 import NotFound from './pages/not-found'
 import Header from './components/header'
 import SuspenseLoad from './components/suspense-load'
-import './assets/icons'
+import './icons'
 import './common/common.styl'
+import './common/g6.styl'
 
 const App = () => (
   <Suspense fallback={<div>Loading...</div>}>

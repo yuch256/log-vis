@@ -1,6 +1,6 @@
 const {sequelize} = require('../../core/db')
 const {Sequelize, Model, Op, fn, col, literal} = require('sequelize')
-const {distinct} = require('../../core/util')
+const {Node} = require('./node')
 
 class Log extends Model {
   // 获取日志时间区间（默认日志已按时间排序，所以取第一条和最后一条日志的时间即可）
@@ -36,47 +36,32 @@ class Log extends Model {
     return list
   }
 
-  // 获取ip节点
+  // 获取全部节点
   static async getNodes() {
-    const srcNodes = await Log.findAll({
+    const nodes = await Node.findAll({
       attributes: [
-        ['srcip', 'id'],
+        ['ip', 'id'],
+        ['in_degree', 'inDegree'],
+        ['out_degree', 'outDegree'],
       ],
-      group: 'srcip',
-      // limit: 3,
     })
-    const dstNodes = await Log.findAll({
-      attributes: [
-        ['dstip', 'id'],
-      ],
-      group: 'dstip',
-      // limit: 3,
-    })
-    // return distinct(srcNodes, dstNodes)
-    const {nodes, obj} = distinct(srcNodes, dstNodes)
-    console.log(Object.keys(obj).length, 1)
-    return {nodes, obj}
-    // return nodes.reduce((arr, n) => {
-    //   if (!/^0/.test(n.id)) arr.push(n)
-    //   return arr
-    // }, [])
+    return nodes
   }
   static async getEdges() {
     const edges = await Log.findAll({
       attributes: [
-        // 'id',
+        [fn('COUNT', col('*')), 'count'],
         ['srcip', 'source'],
         ['dstip', 'target'],
       ],
       group: ['srcip', 'dstip'],
-      limit: 50000,
     })
-    return edges.reduce((arr, e) => {
-      const {source, target} = e
-      const reg = /^0/
-      if (!reg.test(source) && !reg.test(target)) arr.push(e)
-      return arr
-    }, [])
+    const nodes = await Node.findAll({
+      attributes: ['ip'],
+    })
+    const object = {}
+    nodes.forEach(n => object[n.ip] = 1)
+    return edges.filter(e => object[e.source] && object[e.target])
   }
 }
 
@@ -142,5 +127,5 @@ Log.init({
 })
 
 module.exports = {
-  Log
+  Log,
 }

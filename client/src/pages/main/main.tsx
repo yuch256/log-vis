@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import c from 'classnames'
 import {$get} from '@axios'
 import Loading from '@c/loading'
-import NetworkGraph from '@diagramnetwork-graph'
+import NetworkGraph from '@diagram/network-graph'
 import s from './main.module.styl'
 
 interface Data {
@@ -16,11 +16,15 @@ interface Node {
   outDegree: number,
   size?: number,
   label?: string,
-  // labelCfg: {
+  // labelCfg?: {
   //   style: {
   //     fontSize: number,
   //   }
-  // }
+  // },
+  style: {
+    fill: string,
+    stroke: string,
+  },
 }
 interface Edge {
   source: string,
@@ -33,63 +37,39 @@ const Main: React.FC = () => {
   const [data, setData] = useState<Data>({
     nodes: [],
     edges: [],
-    // nodes: [
-    //   {id: 'a'},
-    //   {id: 'b'},
-    // ],
-    // edges: [{
-    //   source: 'a',
-    //   target: 'b',
-    //   count: 1,
-    // }]
   })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // getGraphData()
+    getGraphData()
   }, [])
 
   const getGraphData = async () => {
     try {
       const nodes: any = await $get('/network/nodes')
       const edges: any = await $get('/network/edges')
+
+      let maxDegree = -99999999, minDegree = 99999999
       nodes.forEach((n: Node) => {
-        n.degree = 0
-        n.inDegree = 0
-        n.outDegree = 0
-        // n.label = n.id
-        // n.labelCfg.style = {
-        //   fontSize: 1.3,
-        // }
-      })
-      const nodeIdMap = new Map()
-      nodes.forEach((n: Node) => {
-        nodeIdMap.set(n.id, n)
-      })
-      edges.forEach((e: Edge) => {
-        const source = nodeIdMap.get(e.source)
-        const target = nodeIdMap.get(e.target)
-        if (!source || !target) return
-        source.outDegree++
-        target.inDegree++
-        source.degree++
-        target.degree++
-      })
-      let maxDegree = -9999, minDegree = 9999
-      nodes.forEach((n: Node) => {
+        n.label = n.id
+        n.degree = n.inDegree + n.outDegree
         if (maxDegree < n.degree) maxDegree = n.degree
         if (minDegree > n.degree) minDegree = n.degree
+        n.style = {
+          fill: n.inDegree > n.outDegree ? '#F66071' : '#30C9E8',
+          stroke: n.inDegree > n.outDegree ? '#F66071' : '#30C9E8',
+        }
       })
       const sizeRange = [1, 20]
       const degreeDataRange = [minDegree, maxDegree]
-      // scaleNodeProp(nodes, 'size', 'degree', [minDegree, maxDegree], [1, 20])
-      mapNodeSize(nodes, 'degree', [1, 15])
+      scaleNodeProp(nodes, 'size', 'degree', [minDegree, maxDegree], [5, 20])
+      // mapNodeSize(nodes, 'degree', [10, 50])
       setData({
         nodes,
         edges,
       })
     } catch (error) {
-      console.log(error)
+      console.error(error)
     }
     setLoading(false)
   }
@@ -116,11 +96,12 @@ const Main: React.FC = () => {
     });
   }
 
-  const mapNodeSize = (nodes: Node[], propertyName: 'degree', visualRange: [number, number]) => {
+  const mapNodeSize = (nodes: Node[], name: 'degree', visualRange: [number, number]) => {
     let minp = 9999999999;
     let maxp = -9999999999;
+    const propertyName = 'mapSize'
     nodes.forEach(node => {
-      node[propertyName] = Math.pow(node[propertyName], 1 / 3);
+      node[propertyName] = Math.pow(node[name], 1 / 3);
       minp = node[propertyName] < minp ? node[propertyName] : minp;
       maxp = node[propertyName] > maxp ? node[propertyName] : maxp;
     });
