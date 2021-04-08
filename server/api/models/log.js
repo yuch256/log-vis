@@ -1,6 +1,7 @@
 const {sequelize} = require('../../core/db')
 const {Sequelize, Model, Op, fn, col, literal} = require('sequelize')
 const {Node} = require('./node')
+const {minDegree} = require('../../config/config')
 
 class Log extends Model {
   // 获取日志时间区间（默认日志已按时间排序，所以取第一条和最后一条日志的时间即可）
@@ -56,11 +57,9 @@ class Log extends Model {
       ],
       group: ['srcip', 'dstip'],
     })
-    const nodes = await Node.findAll({
-      attributes: ['ip'],
-    })
+    const nodes = await this.getNodes()
     const object = {}
-    nodes.forEach(n => object[n.ip] = 1)
+    nodes.filter(n => n.inDegree + n.outDegree >= minDegree).forEach(n => object[n.id] = 1)
     return edges.filter(e => object[e.source] && object[e.target])
   }
 }

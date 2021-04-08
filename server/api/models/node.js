@@ -33,10 +33,9 @@ class Node extends Model {
         }
       } else object[id] = {inDegree, outDegree}
     })
-    const result = []
-    Object.entries(object).forEach(([k, v]) => {
+    const result = Object.entries(object).map(([k, v]) => {
       const {inDegree, outDegree} = v || {}
-      result.push({ip: k, inDegree, outDegree})
+      return {ip: k, inDegree, outDegree}
     })
     await Node.sync({force: true})
     await Node.bulkCreate(result)
