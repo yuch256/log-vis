@@ -1,7 +1,7 @@
 import React, {Suspense} from 'react'
 import ReactDOM from 'react-dom'
 import {HashRouter as Router, Switch, Route} from 'react-router-dom'
-import Main from './pages/main'
+import NetWorkGraph from './pages/network-graph'
 import Test from './pages/test'
 import NotFound from './pages/not-found'
 import Header from './components/header'
@@ -15,7 +15,7 @@ const App = () => (
     <Router>
       <Header />
       <Switch>
-        <Route exact path="/" component={SuspenseLoad(Main)} />
+        <Route exact path="/" component={SuspenseLoad(NetWorkGraph)} />
         <Route exact path="/test" component={SuspenseLoad(Test)} />
         <Route path="*" component={SuspenseLoad(NotFound)} />
       </Switch>

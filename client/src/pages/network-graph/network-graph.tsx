@@ -3,7 +3,7 @@ import c from 'classnames'
 import {$get} from '@axios'
 import Loading from '@c/loading'
 import NetworkGraph from '@diagram/network-graph'
-import s from './main.module.styl'
+import s from './network-graph.module.styl'
 
 interface Data {
   nodes: Node[],
@@ -33,7 +33,7 @@ interface Edge {
   value?: number,
 }
 
-const Main: React.FC = () => {
+const NetWorkGraph: React.FC = () => {
   const [data, setData] = useState<Data>({
     nodes: [],
     edges: [],
@@ -123,4 +123,4 @@ const Main: React.FC = () => {
   )
 }
 
-export default Main
+export default NetWorkGraph

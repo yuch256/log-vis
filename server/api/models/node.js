@@ -4,7 +4,7 @@ const {Sequelize, Model, Op, fn, col, literal} = require('sequelize')
 class Node extends Model {
   // 统计不重复点及其出入度信息，存入node表中
   static async initTable() {
-    console.log('init node table')
+    console.log('create node table')
     const {Log} = require('./log')
     
     const srcNodes = await Log.findAll({
@@ -39,6 +39,7 @@ class Node extends Model {
     })
     await Node.sync({force: true})
     await Node.bulkCreate(result)
+    console.log('create node table success!')
     return true
   }
 }
