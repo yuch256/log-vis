@@ -16,6 +16,7 @@
     "axios": "^0.18.0",
     "basic-auth": "^2.0.1",
     "bcryptjs": "^2.4.3",
+    "bluebird": "^3.7.2",
     "fast-csv": "^4.3.6",
     "jsonwebtoken": "^8.4.0",
     "koa": "^2.7.0",

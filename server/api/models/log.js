@@ -64,6 +64,7 @@ class Log extends Model {
   }
 }
 
+
 Log.init({
   id: {
     type: Sequelize.STRING(32),

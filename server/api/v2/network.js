@@ -30,4 +30,16 @@ router.get('/edges', async ctx => {
   }
 })
 
+router.get('/pagerank', async ctx => {
+  const {query} = ctx
+  const {loop} = query
+
+  await Node.pageRanking(loop)
+
+  ctx.body = {
+    success: true,
+    data: query
+  }
+})
+
 module.exports = router

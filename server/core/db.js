@@ -44,6 +44,10 @@ const sequelize = new Sequelize(dbName, user, password, {
     // 查询将只返回dataValues
     raw: true,
   },
+  pool: {
+    max: 120,
+    acquire: 1000 * 60 * 10,
+  }
 })
 // 同步Model到数据库
 sequelize.sync({
