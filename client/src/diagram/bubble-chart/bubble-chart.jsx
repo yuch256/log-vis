@@ -2,7 +2,7 @@ import React, {useEffect, useRef} from 'react'
 import * as d3 from 'd3'
 
 // pagerank气泡图
-const BubbleChart = ({data}) => {
+const BubbleChart = ({data, className}) => {
   const container = useRef(null)
 
   if (!data) data = [{
@@ -32,7 +32,7 @@ const BubbleChart = ({data}) => {
     
     const svg = d3.select('#bubble-svg')
       .attr("viewBox", [0, 0, width, height])
-      .attr("font-size", 10)
+      .attr("font-size", 16)
       .attr("font-family", "sans-serif")
       .attr("text-anchor", "middle");
 
@@ -65,7 +65,7 @@ const BubbleChart = ({data}) => {
     //   .text(d => `${d.data.title === undefined ? "" : `${d.data.title}`}${format(d.value)}`);
   }, [])
 
-  return <div ref={container} className="wh100p">
+  return <div ref={container} className={`${className} wh100p`}>
     <svg id="bubble-svg" />
   </div>
 }

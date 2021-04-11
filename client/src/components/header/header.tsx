@@ -26,8 +26,8 @@ interface NavList {
 
 const NavBar: React.FC = () => {
   const arr: NavList[] = [
-    {link: '01', name: '采荷路'},
-    {link: '02', name: '惠都花园'},
+    {link: '/network', name: '网络拓扑'},
+    {link: '/page-rank', name: 'PageRank'},
     {link: '03', name: '京都苑'},
     {link: '04', name: '曙光花园'},
     {link: '05', name: '兴和公寓'},
@@ -37,7 +37,7 @@ const NavBar: React.FC = () => {
     {arr.map((item: NavList) => {
       return (
         <li className="app-menu-item" key={item.name}>
-          <NavLink to={`/project/${item.link}`} activeClassName="app-menu-active">
+          <NavLink to={item.link} activeClassName="app-menu-active">
             {item.name}
           </NavLink>
         </li>
