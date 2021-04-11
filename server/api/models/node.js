@@ -1,6 +1,8 @@
-const {sequelize} = require('../../core/db')
 const {Sequelize, Model, Op, fn, col, literal} = require('sequelize')
 const BluePromise = require('bluebird')
+const {sequelize} = require('../../core/db')
+const {PageRank} = require('../models/pagerank')
+const {pagerankDegree} = require('../../config/config')
 
 class Node extends Model {
   // 统计不重复点及其出入度信息，存入node表中
@@ -25,7 +27,7 @@ class Node extends Model {
     })
     const nodes = srcNodes.concat(dstNodes)
 
-    // 累加出入度、去重
+    // 去重、累加出入度
     const object = {}
     nodes.forEach(({ip, inDegree = 0, outDegree = 0}) => {
       const n = object[ip]
@@ -40,27 +42,21 @@ class Node extends Model {
     const pagerank = 1 / total
     console.log(total)
     // 所有不重复的点集合
-    const result = await BluePromise.map(Object.entries(object), async ([k, v]) => {
-      const {inDegree, outDegree} = v || {}
+    const result = await BluePromise.map(Object.entries(object), async ([ip, n], i) => {
+      const {inDegree, outDegree} = n || {}
       let dstAmount = outDegree
-      if (outDegree > 10) {
+      if (outDegree > 1) {
         const dstips = await Log.findAll({
           attributes: ['dstip'],
-          where: {srcip: k},
+          where: {srcip: ip},
           group: 'dstip',
         }) || []
         dstAmount = dstips.length
       }
-      console.log(dstAmount)
-      return {
-        ip: k,
-        outDegree,
-        inDegree,
-        dstAmount,
-        pagerank,
-      }
+      console.log(i, dstAmount)
+      return {ip, outDegree, inDegree, dstAmount, pagerank}
     }, {concurrency: 100})
-    console.log(11, result.length)
+    console.log('end', result.length, result[0])
 
     await Node.sync({force: true})
     await Node.bulkCreate(result)
@@ -71,21 +67,49 @@ class Node extends Model {
   /**
    * 计算PageRank
    * 在创建node表时，每个节点初始pagerank值均为1 / N(节点总数)，
-   * 节点的新pagerank值PR(u) = 
+   * 节点的新pagerank值PR(u) = ((PR(A) / dstAmount(A)) + (PR(B) / dstAmount(B)) + .....(指向节点u的全部节点)) * D + T
    */
-  static async pageRanking() {
-    const N = 4 // 节点总数
-    const D = 0.85 // 修正系数
-    const T = (1 - D) / N
+  static async pageRanking(i) {
+    console.log('start a pagerank loop')
+    console.time('a pagerank loop')
+    const {Log} = require('./log')
 
+    const nodes = await Node.findAll({
+      attributes: [
+        'id', 'ip', 'pagerank',
+        ['dst_amount', 'dstAmount'],
+        ['in_degree', 'inDegree'],
+      ],
+    })
     const nodesObj = {}
-    // await Node.findAll({
-    //   attributes: [
-    //     'ip',
-    //     ['src_number', 'srcNumber'],
-    //   ],
-    // }).forEach(n => nodesObj[n.ip] = {inDegree: n.inDegree, outDegree: n.outDegree})
+    nodes.forEach(n => nodesObj[n.ip] = n.dstAmount && n.pagerank / n.dstAmount)
     
+    const D = 0.85 // 修正系数
+    const N = nodes.length // 节点总数
+    const T = (1 - D) / N
+    console.log(N, T)
+
+    const result = await BluePromise.map(nodes, async (n, i) => {
+      const {id, ip, inDegree} = n || {}
+      let _pagerank = 0
+      if (inDegree > pagerankDegree) {
+        const srcips = await Log.findAll({
+          attributes: ['srcip'],
+          where: {dstip: ip},
+          group: 'srcip',
+        }) || []
+        srcips.forEach(({srcip}) => _pagerank += nodesObj[srcip])
+      }
+      _pagerank = _pagerank * D + T
+      console.log(i, _pagerank)
+      return {id, pagerank: _pagerank, outDegree: 1, inDegree: 1, dstAmount: 1} // 必须把所有值写上，但只更新updateOnDuplicate数组中的属性，坑。。。。
+    }, {concurrency: 50})
+    console.log('end', result.length, result[0])
+
+    await Node.bulkCreate(result, {updateOnDuplicate: ['pagerank']})
+    await PageRank.increaseTimes()
+    console.timeEnd('a pagerank loop')
+    return true
   }
 }
 

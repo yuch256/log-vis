@@ -113,8 +113,8 @@ const NetWorkGraph: React.FC = () => {
   }
 
   return (
-    <div className={c(s.container, 'h100p')}>
-      <div className={c(s.box, 'wh100p')}>
+    <div className="container wh100p">
+      <div className="content wh100p">
         <Loading loading={loading}>
           <NetworkGraph data={data} />
         </Loading>

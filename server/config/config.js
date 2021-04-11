@@ -22,5 +22,6 @@ module.exports = {
 		keywordUrl: 'http://t.yushu.im/v2/book/search?q=%s&count=%s&start=%s&summary=%s'
 	},
 	host:'http://localhost:3030/',
-	minDegree: 1000, // 最小出入度
+	networkDegree: 1000, // 拓扑网络节点最小出入度
+	pagerankDegree: 10, // 
 }
