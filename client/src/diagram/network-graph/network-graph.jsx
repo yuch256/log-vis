@@ -61,6 +61,7 @@ const NetworkGraph = ({data}) => {
   );
 
   useEffect(() => {
+    if (!data) return
     const container = el.current
     const width = container?.scrollWidth
     const height = container?.scrollHeight || 500

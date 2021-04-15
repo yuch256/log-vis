@@ -1,5 +1,6 @@
 const {sequelize} = require('../../core/db')
 const {Sequelize, Model, Op, fn, col, literal} = require('sequelize')
+const BluePromise = require('bluebird')
 const {Node} = require('./node')
 const {networkDegree} = require('../../config/config')
 
@@ -21,20 +22,70 @@ class Log extends Model {
     }
   }
 
-  // 统计每天的通讯次数
-  // '%Y/%m/%d %h:%i'
-  static async getCommunicationTimesByOneDay() {
-    const list = await Log.findAll({
+  static async getAllDate(format = '%Y/%m/%d') {
+    const dates = await Log.findAll({
       attributes: [
-        [fn('COUNT', col('*')), 'count'],
-        [literal("DATE_FORMAT(start_time, '%Y/%m/%d')"), 'date'],
+        // [fn('COUNT', col('*')), 'count'],
+        [literal(`DATE_FORMAT(start_time, '${format}')`), 'date'],
       ],
       group: 'date',
       // attributes: [[fn('COUNT', col('*')), 'times']],
       // group: literal('DAY(start_time)'),
     })
-    // const list = await sequelize.query("select start_time, ifnull");
-    return list
+    const result = dates.map(({date}) => {
+      let [y, m, d] = date.split('/')
+      if (m[0] === '0') m = m[1]
+      if (d[0] === '0') d = d[1]
+      return [y, m, d].join('/')
+    })
+    
+    return result
+  }
+
+  // 流量统计
+  static async getFlow() {
+    const flows = await Log.findAll({
+      attributes: [
+        [fn('SUM', col('file_len')), 'size'],
+        [literal("DATE_FORMAT(start_time, '%Y/%m/%d %h')"), 'date'],
+      ],
+      group: 'date',
+      // attributes: [[fn('COUNT', col('*')), 'times']],
+      // group: literal('DAY(start_time)'),
+    }) || []
+    const result = flows.map(({size, date}) => ({date: date.slice(5), size}))
+    return result
+  }
+
+  // 统计每天端口使用
+  // '%Y/%m/%d %h:%i'
+  static async getPortsCount() {
+    const dates = await this.getAllDate()
+    const result = []
+
+    await BluePromise.map(dates, async (date, i) => {
+      const end = i === dates.length - 1 ? '2015/9/13' : dates[i+1]
+      const data = await Log.findAll({
+        attributes: ['srcport', 'dstport'],
+        where: {
+          'start_time': {[Op.between]: [date, end]},
+        },
+      })
+      const obj = {}
+      data.forEach(({srcport, dstport}) => {
+        if (obj[srcport]) obj[srcport] += 1
+        else obj[srcport] = 1
+        if (obj[dstport]) obj[dstport] += 1
+        else obj[dstport] = 1
+      })
+      console.log(date, end, data.length, Object.keys(obj).length)
+      Object.entries(obj).forEach(([port, count]) => {
+        if (count > 100) result.push({name: port, date: date.slice(5), count})
+      })
+    }, {concurrency: 1})
+
+    console.log(result[0], result.length)
+    return result
   }
 
   // 获取全部节点

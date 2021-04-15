@@ -47,15 +47,26 @@ router.put('/read', async ctx => {
   }
   readLog(0)
   
-  ctx.body = 'read log'
+  ctx.body = {
+    success: true,
+  }
 })
 
-router.get('/communication-times/day', async ctx => {
-  const timeInterval = await Log.getTimeInterval()
-  const list = await Log.getCommunicationTimesByOneDay()
+router.get('/ports', async ctx => {
+  const data = await Log.getPortsCount()
+
   ctx.body = {
-    ...timeInterval,
-    list,
+    success: true,
+    data,
+  }
+})
+
+router.get('/flow', async ctx => {
+  const data = await Log.getFlow()
+  
+  ctx.body = {
+    success: true,
+    data,
   }
 })
 

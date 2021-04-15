@@ -22,4 +22,22 @@ router.get('/pagerank', async ctx => {
   }
 })
 
+router.get('/pagerank/percents', async ctx => {
+  const data = await Node.getPageRankPercent()
+
+  ctx.body = {
+    success: true,
+    data,
+  }
+})
+
+router.get('/pagerank/assembly', async ctx => {
+  const data = await Node.getPageRankAssembly()
+
+  ctx.body = {
+    success: true,
+    data,
+  }
+})
+
 module.exports = router

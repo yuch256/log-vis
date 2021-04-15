@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom'
 import {HashRouter as Router, Switch, Route} from 'react-router-dom'
 import NetWorkGraph from './pages/network-graph'
 import PageRank from './pages/page-rank'
+import PortStatistic from './pages/port-statistic'
+import Flow from './pages/flow'
 import Test from './pages/test'
 import NotFound from './pages/not-found'
 import Header from './components/header'
@@ -18,6 +20,8 @@ const App = () => (
       <Switch>
         <Route exact path="/network" component={SuspenseLoad(NetWorkGraph)} />
         <Route exact path="/page-rank" component={SuspenseLoad(PageRank)} />
+        <Route exact path="/port" component={SuspenseLoad(PortStatistic)} />
+        <Route exact path="/flow" component={SuspenseLoad(Flow)} />
         <Route exact path="/test" component={SuspenseLoad(Test)} />
         <Route path="*" component={SuspenseLoad(NotFound)} />
       </Switch>

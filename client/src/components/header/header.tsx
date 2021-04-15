@@ -28,9 +28,8 @@ const NavBar: React.FC = () => {
   const arr: NavList[] = [
     {link: '/network', name: '网络拓扑'},
     {link: '/page-rank', name: 'PageRank'},
-    {link: '03', name: '京都苑'},
-    {link: '04', name: '曙光花园'},
-    {link: '05', name: '兴和公寓'},
+    {link: '/flow', name: '流量时序'},
+    {link: '/port', name: '端口堆叠'},
   ]
 
   return <>

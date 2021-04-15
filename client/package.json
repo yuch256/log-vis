@@ -15,6 +15,7 @@
   "author": "yuch256",
   "license": "ISC",
   "dependencies": {
+    "@antv/g2": "^4.1.14",
     "@antv/g6": "^4.1.13",
     "axios": "^0.21.1",
     "classnames": "^2.2.6",

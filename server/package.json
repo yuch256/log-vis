@@ -24,6 +24,7 @@
     "koa-router": "^7.4.0",
     "lodash": "^4.17.11",
     "module-alias": "^2.2.0",
+    "moment": "^2.29.1",
     "mongodb": "3.5.7",
     "mysql2": "^1.6.5",
     "npm-check": "^5.9.0",

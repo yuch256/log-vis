@@ -35,13 +35,13 @@ const BarChart = ({data}) => {
     const yAxis = g => g
       .attr("transform", `translate(${margin.left},0)`)
       .call(d3.axisLeft(y).ticks(null, data.format))
-      .call(g => g.select(".domain").remove())
+      // .call(g => g.select(".domain").remove())
       .call(g => g.append("text")
-      .attr("x", -margin.left)
-      .attr("y", 10)
-      .attr("fill", "currentColor")
-      .attr("text-anchor", "start")
-      .text(data.y))
+        .attr("x", 0)
+        .attr("y", 10)
+        .attr("fill", "currentColor")
+        .attr("text-anchor", "start")
+        .text(() => '%'))
 
     const svg = d3.select('#bar-svg')
       .attr("viewBox", [0, 0, width, height])
@@ -69,7 +69,7 @@ const BarChart = ({data}) => {
       .attr('text-anchor','middle')
       .attr('x', (d, i) => x(i) + x.bandwidth() / 2)
       .attr('y', d => y(d.value) - 6)
-      .text(d => d.value)
+      .text(d => `${d.value}%`)
 
     svg.append("g")
       .call(xAxis);

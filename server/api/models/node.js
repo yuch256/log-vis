@@ -92,7 +92,7 @@ class Node extends Model {
     const result = await BluePromise.map(nodes, async (n, i) => {
       const {id, ip, inDegree} = n || {}
       let _pagerank = 0
-      if (inDegree > pagerankDegree) {
+      if (inDegree > 0) {
         const srcips = await Log.findAll({
           attributes: ['srcip'],
           where: {dstip: ip},
@@ -110,6 +110,65 @@ class Node extends Model {
     await PageRank.increaseTimes()
     console.timeEnd('a pagerank loop')
     return true
+  }
+
+  // node节点总数
+  static async getNodeCount() {
+    const count = await Node.findOne({
+      attributes: [[fn('COUNT', col('*')), 'count']],
+    })
+    return count
+  }
+
+  // 统计前PageRank柱状图、气泡图所要的数据
+  static async getPageRankPercent() {
+    const xAxis = [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.05]
+    const getCount = async pr => await Node.findAll({
+      attributes: [
+        [fn('COUNT', col('*')), 'count'],
+      ],
+      where: {
+        pagerank: {[Op.lte]: pr},
+      },
+    })
+    const getAllCount = () => Promise.all(xAxis.map(pr => getCount(pr)))
+    const allCount = await getAllCount()
+
+    const {count: nodeCount} = await this.getNodeCount()
+    const percents = xAxis.map((pr, i) => {
+      const {count} = allCount[i][0]
+      const prevCount = i === 0 ? 0 : allCount[i-1][0].count
+      const value = (count - prevCount) / nodeCount
+      return {
+        name: `<=${pr}`,
+        value,
+      }
+    })
+    return percents
+  }
+
+  // 统计PageRank大于0.0001的值的节点数量
+  static async getPageRankAssembly() {
+    const data = await Node.findAll({
+      attributes: ['ip', 'pagerank'],
+      where: {
+        pagerank: {[Op.gt]: 0.0002},
+      },
+    })
+    const obj = {}
+    console.log(data.length, data[0])
+    data.forEach(({ip, pagerank}) => {
+        const pr = pagerank.toFixed(4)
+        if (obj[pr] && Array.isArray(obj[pr])) obj[pr].push(ip)
+        else obj[pr] = [ip]
+      })
+    
+    const result = Object.entries(obj).map(([pr, ips]) => ({
+      name: pr,
+      value: ips.length,
+    }))
+    console.log(result.length, result[0])
+    return result
   }
 }
 
@@ -148,6 +207,8 @@ Node.init({
   tableName:'node',
   timestamps: false,
 })
+
+// Node.getPageRankAssembly()
 
 module.exports = {
   Node,
