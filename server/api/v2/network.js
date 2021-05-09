@@ -9,10 +9,20 @@ const router = new Router({
 
 router.get('/nodes', async ctx => {
   const nodes = await Log.getNodes()
+  let s = 1
   const result = nodes.filter(n => {
     n.degree = n.inDegree + n.outDegree
     return n.degree >= networkDegree
+  }).map(n => {
+    const {pagerank, ...other} = n
+    const isKeyNode = pagerank > 0.001
+    if (isKeyNode) {
+      s += 1
+      // console.log(pagerank)
+    }
+    return {...other, isKeyNode}
   })
+  console.log('network nodes', nodes.length, 'key nodes', s)
 
   ctx.body = {
     success: true,

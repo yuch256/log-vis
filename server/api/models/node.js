@@ -3,6 +3,7 @@ const BluePromise = require('bluebird')
 const {sequelize} = require('../../core/db')
 const {PageRank} = require('../models/pagerank')
 const {pagerankDegree} = require('../../config/config')
+const {networkDegree} = require('../../config/config')
 
 class Node extends Model {
   // 统计不重复点及其出入度信息，存入node表中
@@ -169,6 +170,24 @@ class Node extends Model {
     }))
     console.log(result.length, result[0])
     return result
+  }
+  
+  // 获取关键节点
+  static async getKeyNodes() {
+    const data = await Node.findAll({
+      attributes: [
+        ['ip', 'id'],
+        ['in_degree', 'inDegree'],
+        ['out_degree', 'outDegree'],
+      ],
+      where: {
+        pagerank: {[Op.gt]: 0.001},
+      },
+    }).filter(n => {
+      const degree = n.inDegree + n.outDegree
+      return degree >= networkDegree
+    }).map(n => n.id)
+    return data
   }
 }
 

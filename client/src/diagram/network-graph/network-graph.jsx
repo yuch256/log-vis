@@ -6,7 +6,7 @@ const llightBlue16 = '#C8FDFC'
 const lightOrange = 'rgb(230, 100, 64)'
 const llightOrange16 = '#FFAA86'
 
-const NetworkGraph = ({data}) => {
+const NetworkGraph = ({data, onClickNode}) => {
   const el = useRef(null)
   let graph = null
 
@@ -68,7 +68,7 @@ const NetworkGraph = ({data}) => {
 
     const edgeBundling = new Bundling({
       bundleThreshold: 0.6, // 绑定的容忍度。数值越低，被绑定在一起的边相似度越高，即被绑在一起的边更少。
-      K: 100 // 绑定的强度
+      K: 10 // 绑定的强度
     })
 
     graph = new G6.Graph({
@@ -78,9 +78,10 @@ const NetworkGraph = ({data}) => {
       plugins: [edgeBundling],
       fitView: true,
       layout: {
-        type: 'fruchterman',
-        // type: 'gForce',
-        gravity: 10,
+        // type: 'fruchterman',
+        type: 'gForce',
+        // type: 'force',
+        gravity: 5,
         gpuEnabled: true,
       },
       defaultNode: {
@@ -89,7 +90,7 @@ const NetworkGraph = ({data}) => {
         color: 'steelblue',
         style: {
           fill: '#C6E5FF',
-          stroke: '#5B8FF9',
+          // stroke: '#5B8FF9',
           lineWidth: 0.3,
         },
         labelCfg: {
@@ -109,22 +110,26 @@ const NetworkGraph = ({data}) => {
         //     fill: 'steelblue',
         //   },
         // },
-        // edgeStyle: {
-        //   default: {
-        //     lineWidth: 0.7,
-        //     strokeOpacity: 0.3, // 设置边透明度，在边聚集的部分透明度将会叠加，从而具备突出高密度区域的效果
-        //     stroke: 'l(0) 0:' + llightBlue16 + ' 1:' + llightOrange16,
-        //   },
-        // },
+        edgeStyle: {
+          default: {
+            
+          },
+        },
       },
       defaultEdge: {
-        size: 0.1,
-        color: 'rgba(0,0,0,.24)',
+        size: 0.4,
+        // color: 'rgba(0,0,0,.24)',
         type: 'line',
+        style: {
+          lineWidth: 0.7,
+          strokeOpacity: 0.3, // 设置边透明度，在边聚集的部分透明度将会叠加，从而具备突出高密度区域的效果
+          stroke: 'l(0) 0:' + 'rgba(0,0,0,.24)' + ' 1:' + 'rgba(0,0,0,.5)',
+        },
       },
       nodeStateStyles: {
         selected: {
-          fill: 'steelblue',
+          fill: 'red',
+          size: 8,
           stroke: '#000',
           lineWidth: 1,
         },
@@ -136,6 +141,7 @@ const NetworkGraph = ({data}) => {
       },
       modes: {
         default: [
+          'click-select',
           {
             type: 'zoom-canvas',
             enableOptimize: true,
@@ -146,25 +152,18 @@ const NetworkGraph = ({data}) => {
             enableOptimize: true,
           },
           {
-            type: 'drag-node',
-            enableDebounce: true,
-            enableOptimize: true,
-            enableDelegate: true,
-            updateEdge: false,
-          },
-          {
             type: 'tooltip',
             formatText(model) {
               const {id, inDegree, outDegree} = model
-              return `<div>
-                <div>IP: ${id}</div>\n
-                <div>出度：${inDegree}</div>\n
-                <div>入度：${outDegree}</div>\n
-              </div>`
+              // return `<span>
+              //   <div>IP: ${id}</div>\n
+              //   <div>出度：${inDegree}</div>\n
+              //   <div>入度：${outDegree}</div>\n
+              // </span>`
+              return `IP: ${id}\n出度：${inDegree}\n入度：${outDegree}`
             },
-            shouldUpdate: e => {
-              return true
-            }
+            shouldUpdate: e => true,
+            position: 'right',
           },
         ],
       },
@@ -176,11 +175,16 @@ const NetworkGraph = ({data}) => {
     graph.on('node:mouseenter', (e) => {
       const { item } = e;
       graph.setItemState(item, 'hover', true);
-    });
+    })
     graph.on('node:mouseleave', (e) => {
       const { item } = e;
       graph.setItemState(item, 'hover', false);
-    });
+    })
+    graph.on('node:click', (e) => {
+      const { item } = e;
+      const model = item._cfg.model
+      onClickNode(model)
+    })
 
     if (typeof window !== 'undefined') {
       window.onresize = () => {

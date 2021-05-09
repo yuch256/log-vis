@@ -47,6 +47,7 @@ class Log extends Model {
     const flows = await Log.findAll({
       attributes: [
         [fn('SUM', col('file_len')), 'size'],
+        // [literal("DATE_FORMAT(start_time, '%Y/%m/%d')"), 'date'],
         [literal("DATE_FORMAT(start_time, '%Y/%m/%d %h')"), 'date'],
       ],
       group: 'date',
@@ -95,6 +96,7 @@ class Log extends Model {
         ['ip', 'id'],
         ['in_degree', 'inDegree'],
         ['out_degree', 'outDegree'],
+        'pagerank',
       ],
     })
     return nodes
@@ -112,6 +114,82 @@ class Log extends Model {
     const object = {}
     nodes.filter(n => n.inDegree + n.outDegree >= networkDegree).forEach(n => object[n.id] = 1)
     return edges.filter(e => object[e.source] && object[e.target])
+  }
+
+  // 节点端口使用统计
+  // type 'source' | 'target' 分别表示作为源ip、目的ip的端口统计
+  static async getNodePort(ip = '10.67.220.221', type = 'source') {
+    let attrPort, whereIp
+    if (type === 'source') {
+      attrPort = 'srcport'
+      whereIp = 'srcip'
+    } else if (type === 'target') {
+      attrPort = 'dstport'
+      whereIp = 'dstip'
+    }
+    const data = await Log.findAll({
+      attributes: [
+        [attrPort, 'port'],
+        [fn('COUNT', col('*')), 'count'],
+      ],
+      where: {
+        [whereIp]: ip,
+      },
+      group: [attrPort]
+    })
+    return data
+  }
+
+  // 全部关键节点流量统计（天）
+  static async allKeyNodesFlow() {
+    const nodes = await Node.getKeyNodes()
+
+    let result = []
+    await BluePromise.map(nodes, async (ip, i) => {
+      const flows = await Log.findAll({
+        attributes: [
+          [fn('SUM', col('file_len')), 'size'],
+          [literal("DATE_FORMAT(start_time, '%Y/%m/%d')"), 'date'],
+        ],
+        where: {
+          [Op.or]: [
+            {srcip: ip},
+            {dstip: ip},
+          ]
+        },
+        group: 'date',
+      }) || []
+      const r = flows.map(({size, date}) => ({date: date.slice(5), size: (size/1024).toFixed(0), ip}))
+      result = result.concat(r)
+    }, {concurrency: 1})
+    
+    return result
+  }
+
+  // 全部关键节点通信次数统计（天）
+  static async allKeyNodesCount() {
+    const nodes = await Node.getKeyNodes()
+
+    let result = []
+    await BluePromise.map(nodes, async (ip, i) => {
+      const flows = await Log.findAll({
+        attributes: [
+          [fn('COUNT', col('*')), 'size'],
+          [literal("DATE_FORMAT(start_time, '%Y/%m/%d')"), 'date'],
+        ],
+        where: {
+          [Op.or]: [
+            {srcip: ip},
+            {dstip: ip},
+          ]
+        },
+        group: 'date',
+      }) || []
+      const r = flows.map(({size, date}) => ({date: date.slice(5), size: (size/1024).toFixed(0), ip}))
+      result = result.concat(r)
+    }, {concurrency: 1})
+    
+    return result
   }
 }
 

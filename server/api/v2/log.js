@@ -70,6 +70,41 @@ router.get('/flow', async ctx => {
   }
 })
 
+const formatPortData = data => {
+  let otherPortCount = 0
+  const total = data.reduce((sum, item) => sum + item.count, 0)
+  const result = data.filter(({count}) => {
+    const percent = count / total
+    const isMajor = percent >= 0.05
+    if (!isMajor) otherPortCount += count
+    return isMajor
+  }).concat({port: 'other', count: otherPortCount})
+  .map(({port, count}) => ({port, count, percent: (count / total).toFixed(3)}))
+  return data.length ? result : []
+}
+
+router.get('/node/srcport', async ctx => {
+  const {ip} = ctx.query
+  const data = await Log.getNodePort(ip, 'source')
+  const result = formatPortData(data)
+
+  ctx.body = {
+    success: true,
+    data: result,
+  }
+})
+
+router.get('/node/dstport', async ctx => {
+  const {ip} = ctx.query
+  const data = await Log.getNodePort(ip, 'target')
+  const result = formatPortData(data)
+
+  ctx.body = {
+    success: true,
+    data: result,
+  }
+})
+
 // var base = +new Date(1968, 9, 3);
 // var oneDay = 24 * 3600 * 1000;
 // var date = [];

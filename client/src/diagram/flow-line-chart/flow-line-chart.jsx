@@ -48,8 +48,9 @@ const FlowLineChart = ({data}) => {
       shared: true,
     });
     
-    chart.line().position('date*size');
-    chart.point().position('date*size');
+    chart
+      .line()
+      .position('date*size')
     
     chart.render();
   }, [data])

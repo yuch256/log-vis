@@ -1,8 +1,9 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useMemo} from 'react'
 import c from 'classnames'
 import {$get} from '@axios'
 import Loading from '@c/loading'
 import NetworkGraph from '@diagram/network-graph'
+import PortPie from '@diagram/port-pie'
 import s from './network-graph.module.styl'
 
 interface Data {
@@ -14,16 +15,18 @@ interface Node {
   degree: number,
   inDegree: number,
   outDegree: number,
+  isKeyNode: boolean,
   size?: number,
   label?: string,
   // labelCfg?: {
-  //   style: {
-  //     fontSize: number,
-  //   }
-  // },
+    //   style: {
+      //     fontSize: number,
+      //   }
+      // },
   style: {
     fill: string,
-    stroke: string,
+    stroke: any,
+    lineWidth?: number,
   },
 }
 interface Edge {
@@ -39,6 +42,7 @@ const NetWorkGraph: React.FC = () => {
     edges: [],
   })
   const [loading, setLoading] = useState(true)
+  const [ip, setIp] = useState('')
 
   useEffect(() => {
     getGraphData()
@@ -51,19 +55,20 @@ const NetWorkGraph: React.FC = () => {
 
       let maxDegree = -99999999, minDegree = 99999999
       nodes.forEach((n: Node) => {
-        n.label = n.id
+        // n.label = n.id
         n.degree = n.inDegree + n.outDegree
         if (maxDegree < n.degree) maxDegree = n.degree
         if (minDegree > n.degree) minDegree = n.degree
         n.style = {
           fill: n.inDegree > n.outDegree ? '#F66071' : '#30C9E8',
-          stroke: n.inDegree > n.outDegree ? '#F66071' : '#30C9E8',
+          stroke: '#F66071',
+          lineWidth: n.isKeyNode ? 6 : 0,
         }
       })
       const sizeRange = [1, 20]
       const degreeDataRange = [minDegree, maxDegree]
-      scaleNodeProp(nodes, 'size', 'degree', [minDegree, maxDegree], [5, 20])
-      // mapNodeSize(nodes, 'degree', [10, 50])
+      // scaleNodeProp(nodes, 'size', 'degree', [minDegree, maxDegree], [5, 20])
+      mapNodeSize(nodes, 'degree', [10, 50])
       setData({
         nodes,
         edges,
@@ -112,12 +117,34 @@ const NetWorkGraph: React.FC = () => {
     })
   }
 
+  const onClickNode = (model: any) => {
+    const {id} = model
+    setIp(id)
+    console.log(id)
+  }
+
   return (
     <div className="container wh100p">
       <div className="content wh100p">
-        <Loading loading={loading}>
-          <NetworkGraph data={data} />
-        </Loading>
+        <div className="fb1">
+          <Loading loading={loading}>
+            <NetworkGraph data={data} onClickNode={onClickNode} />
+          </Loading>
+        </div>
+        {useMemo(() => <div style={{width: 400}}>
+          <div style={{height: '50%'}} className="fbv">
+            <div className="tac">{`${ip}作为源IP的端口统计`}</div>
+            <div className="fb1">
+              <PortPie ip={ip} type='source' />
+            </div>
+          </div>
+          <div style={{height: '50%'}} className="fbv">
+            <div className="tac">{`${ip}作为目的IP的端口统计`}</div>
+            <div className="fb1">
+              <PortPie ip={ip} type='target' />
+            </div>
+          </div>
+        </div>, [ip])}
       </div>
     </div>
   )

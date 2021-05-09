@@ -21,7 +21,7 @@ const App = () => (
         <Route exact path="/network" component={SuspenseLoad(NetWorkGraph)} />
         <Route exact path="/page-rank" component={SuspenseLoad(PageRank)} />
         <Route exact path="/port" component={SuspenseLoad(PortStatistic)} />
-        <Route exact path="/flow" component={SuspenseLoad(Flow)} />
+        <Route exact path="/key-nodes-flow" component={SuspenseLoad(Flow)} />
         <Route exact path="/test" component={SuspenseLoad(Test)} />
         <Route path="*" component={SuspenseLoad(NotFound)} />
       </Switch>

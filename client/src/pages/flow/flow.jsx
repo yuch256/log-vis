@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {$get} from '@axios'
 import Loading from '@c/loading'
+import AllFlowHeatMap from '@diagram/all-flow-heat-map'
 import FlowLineChart from '@diagram/flow-line-chart'
 
 const K = 1024
@@ -14,8 +15,9 @@ const Flow = () => {
     try {
       setLoading(true)
       const r = await $get('/log/flow')
-      // setData(r.map(({size, date}) => ({size: (size/K).toFixed(0), date})))
-      setData(r)
+      const data = r.map(({size, date}) => ({size: Number((size/K).toFixed(0)), date}))
+      setData(data)
+      // setData(r)
       setLoading(false)
     } catch (error) {
       console.error(error)
@@ -27,10 +29,26 @@ const Flow = () => {
   }, [])
 
   return <div className="container wh100p">
-    <div className="content wh100p pr">
-      <Loading loading={loading}>
-        <FlowLineChart data={data} />
-      </Loading>
+    <div className="content wh100p pr fbv">
+      <div style={{height: 300}} className="mb16">
+        <Loading loading={loading}>
+          <FlowLineChart data={data} />
+        </Loading>
+      </div>
+      <div className="fbh">
+        <div className="fb1 fbv">
+          <div className="tac">关键节点通信流量热力图</div>
+          <div style={{height: 500}}>
+            <AllFlowHeatMap type="flow" />
+          </div>
+        </div>
+        <div className="fb1 fbv">
+          <div className="tac">关键节点通信次数热力图</div>
+          <div style={{height: 500}}>
+            <AllFlowHeatMap type="count" />
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 }

@@ -10,7 +10,7 @@ const Header: React.FC = () => {
         <div className="app-logo-box">
           <img src={Logo} alt="logo" className="wh100p" />
         </div>
-        <span>网络安全数据可视化系统</span>
+        <span>网络日志可视化分析</span>
       </Link>
       <ul className="app-menu">
         <NavBar />
@@ -26,10 +26,11 @@ interface NavList {
 
 const NavBar: React.FC = () => {
   const arr: NavList[] = [
-    {link: '/network', name: '网络拓扑'},
-    {link: '/page-rank', name: 'PageRank'},
-    {link: '/flow', name: '流量时序'},
-    {link: '/port', name: '端口堆叠'},
+    {link: '/network', name: '网络主体结构'},
+    // {link: '/page-rank', name: 'PageRank'},
+    // {link: '/flow', name: '流量时序'},
+    {link: '/key-nodes-flow', name: '关键节点流量时序分析'},
+    {link: '/multi-flow', name: '多维属性流量时序分析'},
   ]
 
   return <>
