@@ -2,6 +2,7 @@ const {sequelize} = require('../../core/db')
 const {Sequelize, Model, Op, fn, col, literal} = require('sequelize')
 const BluePromise = require('bluebird')
 const {Node} = require('./node')
+const {Entropy} = require('./entropy')
 const {networkDegree} = require('../../config/config')
 
 class Log extends Model {
@@ -22,7 +23,7 @@ class Log extends Model {
     }
   }
 
-  static async getAllDate(format = '%Y/%m/%d') {
+  static async getAllDate(format = '%Y/%m/%d %h') {
     const dates = await Log.findAll({
       attributes: [
         // [fn('COUNT', col('*')), 'count'],
@@ -33,11 +34,20 @@ class Log extends Model {
       // group: literal('DAY(start_time)'),
     })
     const result = dates.map(({date}) => {
-      let [y, m, d] = date.split('/')
+      let [ymd, h] = date.split(' ')
+      let [y, m, d] = ymd.split('/')
       if (m[0] === '0') m = m[1]
       if (d[0] === '0') d = d[1]
-      return [y, m, d].join('/')
+      if (h[0] === '0') h = h[1]
+      h -= 1
+      ymd = [y, m, d].join('/')
+      return {date: [ymd, h].join(' ')}
+      // return [ymd, h].join(' ')
     })
+
+    // console.log(result)
+    await Entropy.sync({force: true})
+    Entropy.bulkCreate(result)
     
     return result
   }
@@ -47,6 +57,7 @@ class Log extends Model {
     const flows = await Log.findAll({
       attributes: [
         [fn('SUM', col('file_len')), 'size'],
+        [fn('COUNT', col('*')), 'count'],
         // [literal("DATE_FORMAT(start_time, '%Y/%m/%d')"), 'date'],
         [literal("DATE_FORMAT(start_time, '%Y/%m/%d %h')"), 'date'],
       ],
@@ -54,14 +65,14 @@ class Log extends Model {
       // attributes: [[fn('COUNT', col('*')), 'times']],
       // group: literal('DAY(start_time)'),
     }) || []
-    const result = flows.map(({size, date}) => ({date: date.slice(5), size}))
+    const result = flows.map(({date, ...other}) => ({date: date.slice(5), ...other}))
     return result
   }
 
   // 统计每天端口使用
   // '%Y/%m/%d %h:%i'
   static async getPortsCount() {
-    const dates = await this.getAllDate()
+    const dates = await this.getAllDate() // 这里会报错，getAllDate被改了
     const result = []
 
     await BluePromise.map(dates, async (date, i) => {
@@ -191,8 +202,126 @@ class Log extends Model {
     
     return result
   }
-}
 
+  static async calculateEntropy() {
+    const dates = await Entropy.findAll({
+      attributes: ['date'],
+    }).map(({date}) => date)
+
+    const getGroupData = async (attr, start, end) => {
+      return await Log.findAll({
+        attributes: [
+          attr,
+          [fn('COUNT', col('*')), 'count'],
+        ],
+        where: {
+          'start_time': {[Op.between]: [start, end]},
+        },
+        group: attr,
+      })
+    }
+    const getSumData = async (attr, start, end) => {
+      return await Log.findOne({
+        attributes: [
+          [fn('SUM', col(attr)), 'sum'],
+        ],
+        where: {
+          'start_time': {[Op.between]: [start, end]},
+        },
+      })
+    }
+    const log2 = n => Math.log2(n)
+    const onlyCount = data => data.map(({count}) => count)
+    const entropyFn = (data, total) => {
+      const counts = onlyCount(data)
+      const entropy = counts.reduce((sum, count) => {
+        const percent = count / total
+        sum -= percent * log2(percent)
+        return sum
+      }, 0)
+      console.log('entropy', entropy)
+      return entropy
+    }
+
+    await BluePromise.map(dates, async (date, i) => {
+      const end = i === dates.length - 1 ? '2015/9/12 3' : dates[i+1]
+      // 该时间段内共有多少条记录
+      const all = await Log.findAll({
+        where: {
+          'start_time': {[Op.between]: [date, end]},
+        },
+      })
+      const total = all.length
+      if (total === 0) return
+      const srcipGroup = await getGroupData('srcip', date, end)
+      const srcipEntropy = entropyFn(srcipGroup, total)
+      const dstipGroup = await getGroupData('dstip', date, end)
+      const dstipEntropy = entropyFn(dstipGroup, total)
+      const srcportGroup = await getGroupData('srcport', date, end)
+      const srcportEntropy = entropyFn(srcportGroup, total)
+      const dstportGroup = await getGroupData('dstport', date, end)
+      const dstportEntropy = entropyFn(dstportGroup, total)
+
+      const {sum: flow} = await getSumData('file_len', date, end)
+      console.log('flow', flow)
+
+      await Entropy.update({
+        srcip: srcipEntropy,
+        dstip: dstipEntropy,
+        srcport: srcportEntropy,
+        dstport: dstportEntropy,
+        flow,
+        count: total,
+      }, {
+        where: {date},
+      })
+      console.log('update', i)
+    }, {concurrency: 10})
+  }
+
+  static async getTopFlowAttr(attr = 'srcip', date = '') {
+    let [ymd, h] = date.split(' ')
+    const end = [ymd, ++h].join(' ')
+    console.log(date, end)
+
+    const data = await Log.findAll({
+      attributes: [
+        [attr, 'name'],
+        [fn('SUM', col('file_len')), 'value'],
+      ],
+      where: {
+        // 'start_time': {[Op.between]: ['2015/7/22 11', '2015/7/22 12']},
+        'start_time': {[Op.between]: [date, end]},
+      },
+      group: attr,
+    })
+    const result = data.sort((a, b) => b.sum - a.sum).slice(0, 10)
+    console.log(result)
+    return result
+  }
+
+  static async getDateAttr(attr = 'srcip', value, date = '') {
+    let [ymd, h] = date.split(' ')
+    // const end = [ymd, `${++h}:0`].join(' ')
+    const end = [ymd, ++h].join(' ')
+    console.log(attr, value, date, end)
+
+    const data = await Log.findAll({
+      attributes: [
+        [fn('SUM', col('file_len')), 'size'],
+        [literal("DATE_FORMAT(start_time, '%Y/%m/%d %h:%i')"), 'date'],
+      ],
+      where: {
+        // 'start_time': {[Op.between]: [`${date}:0`, end]},
+        'start_time': {[Op.between]: [date, end]},
+        [attr]: value,
+      },
+      group: 'date'
+    })
+    console.log(data)
+    return data
+  }
+}
 
 Log.init({
   id: {
@@ -254,6 +383,10 @@ Log.init({
   tableName:'log',
   timestamps: false,
 })
+
+// Log.calculateEntropy()
+// Log.getAllDate()
+// Log.getTopData()
 
 module.exports = {
   Log,

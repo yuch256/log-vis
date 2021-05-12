@@ -123,7 +123,7 @@ class Node extends Model {
 
   // 统计前PageRank柱状图、气泡图所要的数据
   static async getPageRankPercent() {
-    const xAxis = [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.05]
+    const xAxis = [0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.001]
     const getCount = async pr => await Node.findAll({
       attributes: [
         [fn('COUNT', col('*')), 'count'],

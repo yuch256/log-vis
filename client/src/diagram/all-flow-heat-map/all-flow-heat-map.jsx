@@ -91,7 +91,8 @@ const AllFlowHeatMap = ({type = 'flow'}) => {
       const url = `/node/key-nodes/${type}`
       const r = await $get(url)
       setLoad(false)
-      renderChart(r.map(({date, size, ip}) => ({date, size: Number(size), ip})))
+      const getSize = size => type === 'flow' ? (size/1024).toFixed(2) : size
+      renderChart(r.map(({date, size, ip}) => ({date, size: Number(getSize(size)), ip})))
     } catch (error) {
       console.error(error)
     }

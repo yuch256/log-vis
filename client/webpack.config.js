@@ -177,6 +177,10 @@ module.exports = {
         ],
       },
       {
+        test:/\.csv$/,
+        use:['csv-loader'],
+      },
+      {
         test: /\.(jpg|jpeg|png|gif|svg|ico)$/,
         exclude: [path.resolve(__dirname, './src/icons')],
         // use: [{

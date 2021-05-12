@@ -15,7 +15,7 @@ const Flow = () => {
     try {
       setLoading(true)
       const r = await $get('/log/flow')
-      const data = r.map(({size, date}) => ({size: Number((size/K).toFixed(0)), date}))
+      const data = r.map(({size, ...other}) => ({size: Number((size/M).toFixed(2)), ...other}))
       setData(data)
       // setData(r)
       setLoading(false)

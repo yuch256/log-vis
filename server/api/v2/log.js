@@ -3,6 +3,7 @@ const csv = require('fast-csv')
 const fs = require('fs')
 const path = require('path')
 const {Log} = require('../models/log')
+const {Entropy} = require('../models/entropy')
 
 const router = new Router({
   prefix:'/v2/log'
@@ -102,6 +103,43 @@ router.get('/node/dstport', async ctx => {
   ctx.body = {
     success: true,
     data: result,
+  }
+})
+
+router.get('/entropy', async ctx => {
+  const data = await Entropy.findAll()
+
+  ctx.body = {
+    success: true,
+    data,
+  }
+})
+
+router.get('/node/top', async ctx => {
+  const {date} = ctx.query
+  const srcip = await Log.getTopFlowAttr('srcip', date)
+  const dstip = await Log.getTopFlowAttr('dstip', date)
+  const srcport = await Log.getTopFlowAttr('srcport', date)
+  const dstport = await Log.getTopFlowAttr('dstport', date)
+
+  ctx.body = {
+    success: true,
+    data: {
+      srcip,
+      dstip,
+      srcport,
+      dstport,
+    },
+  }
+})
+
+router.get('/date/attr', async ctx => {
+  const {date, attr, value} = ctx.query
+  const data = await Log.getDateAttr(attr, value, date)
+
+  ctx.body = {
+    success: true,
+    data,
   }
 })
 

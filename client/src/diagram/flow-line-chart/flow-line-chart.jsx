@@ -22,26 +22,38 @@ const FlowLineChart = ({data}) => {
         range: [0, 1],
       },
       size: {
+        alias: '通信流量',
         min: 0,
+        sync: true,
         nice: true,
       },
+      count: {
+        alias: '通信次数',
+        min: 0,
+        sync: true,
+        nice: true,
+      }
     });
 
     chart.axis('size', {
+      title: {},
       label: {
         formatter: (val) => {
-          return val + 'M';
+          return val + 'G';
         },
       },
+    });
+    chart.axis('count', {
+      title: {},
     });
 
-    chart.axis('date', {
-      label: {
-        formatter: (val) => {
-          return val.slice(0, 5);
-        },
-      },
-    });
+    // chart.axis('date', {
+    //   label: {
+    //     formatter: (val) => {
+    //       return val.slice(0, 5);
+    //     },
+    //   },
+    // });
     
     chart.tooltip({
       showCrosshairs: true, // 展示 Tooltip 辅助线
@@ -51,8 +63,13 @@ const FlowLineChart = ({data}) => {
     chart
       .line()
       .position('date*size')
+      .color('#4FAAEB')
+    chart
+      .line()
+      .position('date*count')
+      .color('#9AD681')
     
-    chart.render();
+    chart.render()
   }, [data])
 
   return <div ref={el} id="network-graph" className="wh100p" />

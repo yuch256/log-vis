@@ -5,6 +5,7 @@ import NetWorkGraph from './pages/network-graph'
 import PageRank from './pages/page-rank'
 import PortStatistic from './pages/port-statistic'
 import Flow from './pages/flow'
+import MultiFlow from './pages/multi-flow'
 import Test from './pages/test'
 import NotFound from './pages/not-found'
 import Header from './components/header'
@@ -22,6 +23,7 @@ const App = () => (
         <Route exact path="/page-rank" component={SuspenseLoad(PageRank)} />
         <Route exact path="/port" component={SuspenseLoad(PortStatistic)} />
         <Route exact path="/key-nodes-flow" component={SuspenseLoad(Flow)} />
+        <Route exact path="/multi-flow" component={SuspenseLoad(MultiFlow)} />
         <Route exact path="/test" component={SuspenseLoad(Test)} />
         <Route path="*" component={SuspenseLoad(NotFound)} />
       </Switch>
