@@ -36,11 +36,11 @@ const MultiFlow = () => {
       console.log(r, lines)
       let A = a + 1
       setA(A)
-      setLines(lines.concat({
+      setLines([{
         attr: name,
         value,
         data: r,
-      }))
+      }])
     } catch (error) {
       console.error(error)
     }
@@ -51,7 +51,7 @@ const MultiFlow = () => {
       <div style={{height: 500}}>
         <ParallelCoord onClickLine={onClickLine} />
       </div>
-      <p className="mb8 tac f16">{date}{a}</p>
+      <p className="mb8 tac f16">{date}</p>
       <div className="fbh">
         <div className="fbv" style={{width: 400}}>
           {Object.entries(data).map(([k, v]) => Children.toArray(
